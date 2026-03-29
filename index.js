@@ -1,5 +1,10 @@
 import express from 'express'
 import mongoose from 'mongoose'
+import authenticate from './middlewares/authenticate.js'
+import userRouter from './routers/userRouter.js'
+import courseRouter from './routers/courseRouter.js'
+import enrollmentRouter from './routers/enrollmentRouter.js'
+import courseVideoRouter from './routers/coursevideoRouter.js'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -13,6 +18,16 @@ mongoose.connect(mongoDBURI).then(
 )
 
 const app = express()
+
+app.use( express.json() )
+
+app.use(authenticate)
+
+app.use("/users" , userRouter)
+app.use("/courses" , courseRouter)
+app.use("/enrollments" , enrollmentRouter)
+app.use("/course-videos" , courseVideoRouter)   
+
 
 app.listen(
     3000 ,
