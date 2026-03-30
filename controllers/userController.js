@@ -4,34 +4,44 @@ import jwt from "jsonwebtoken"
 
 
 // CREATE USER
-export async function createUser(req,res){
+export async function createUser(req, res) {
 
-    try{
+    try {
 
-        const user = await User.findOne({email : req.body.email})
-
-        if(user != null){
-            res.json({message : "User already exists"})
-            return
+        //If user is logged in but NOT admin
+        if (req.user && req.user.isAdmin === false) {
+            res.json({ message: "Only admins can create users" });
+            return;
         }
 
-        const passwordHash = bcrypt.hashSync(req.body.password,10)
+        //Check if email already exists
+        const user = await User.findOne({ email: req.body.email });
 
+        if (user != null) {
+            res.json({ message: "User already exists" });
+            return;
+        }
+
+        //Hash password
+        const passwordHash = bcrypt.hashSync(req.body.password, 10);
+
+        //Create new user
         const newUser = new User({
-            email : req.body.email,
-            firstName : req.body.firstName,
-            lastName : req.body.lastName,
-            password : passwordHash
-        })
+            email: req.body.email,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            password: passwordHash
+        });
 
-        await newUser.save()
+        await newUser.save();
 
-        res.json({message : "User created successfully"})
+        res.json({ message: "User created successfully" });
 
-    }catch(err){
-        res.json({message : err.message})
+    } catch (err) {
+        res.json({ message: err.message });
     }
 }
+
 
 
 // LOGIN USER
