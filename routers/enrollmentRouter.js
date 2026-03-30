@@ -9,6 +9,7 @@ import {
 } from '../controllers/enrollmentController.js';
 
 const enrollmentRouter = express.Router();
+
 enrollmentRouter.post("/", enrollCourse);
 enrollmentRouter.get("/my", getMyCourses);
 enrollmentRouter.get("/all", getAllEnrollments);//ADMIN ROUTE
