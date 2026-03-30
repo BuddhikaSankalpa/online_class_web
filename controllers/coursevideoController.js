@@ -1,6 +1,6 @@
 import CourseVideo from "../models/coursevideo.js"
 import Course from "../models/course.js"
-
+import Enrollment from "../models/enrollment.js"  
 
 
 
@@ -74,17 +74,39 @@ export async function getAllCourseVideos(req,res){
 
 // GET VIDEOS BY COURSE ID
 export async function getVideosByCourseId(req,res){
-
     try{
+        // Admin gets all videos
+        if(req.user != null && req.user.isAdmin){
+            const videos = await CourseVideo.find({courseId : req.params.courseId}).sort({order : 1})
+            return res.json(videos)
+        }
 
         const videos = await CourseVideo.find({courseId : req.params.courseId}).sort({order : 1})
 
+        // Non-logged users only see preview videos
+        if(req.user == null){
+            const previewOnly = videos.filter(v => v.isPreview === true)
+            return res.json(previewOnly)
+        }
+
+        // Check enrollment
+        const enrollment = await Enrollment.findOne({
+            userId : req.user.email,
+            courseId : req.params.courseId
+        })
+
+        if(enrollment == null){
+            // Only previews for non-enrolled
+            const previewOnly = videos.filter(v => v.isPreview === true)
+            return res.json(previewOnly)
+        }
+
+        // Enrolled users get all videos
         res.json(videos)
 
     }catch(err){
         res.status(500).json({message : err.message})
     }
-
 }
 
 
@@ -92,14 +114,36 @@ export async function getVideosByCourseId(req,res){
 
 // GET VIDEO BY VIDEO ID
 export async function getVideoById(req,res){
-
     try{
-
         const video = await CourseVideo.findOne({videoId : req.params.videoId})
 
         if(video == null){
-            res.status(404).json({message : "Video not found"})
-            return
+            return res.status(404).json({message : "Video not found"})
+        }
+
+        // Admin can view any video
+        if(req.user != null && req.user.isAdmin){
+            return res.json(video)
+        }
+
+        // Preview videos are public
+        if(video.isPreview){
+            return res.json(video)
+        }
+
+        // Must be logged in
+        if(req.user == null){
+            return res.status(401).json({message : "Login required"})
+        }
+
+        // Check enrollment
+        const enrollment = await Enrollment.findOne({
+            userId : req.user.email,
+            courseId : video.courseId
+        })
+
+        if(enrollment == null){
+            return res.status(403).json({message : "You must buy this course first"})
         }
 
         res.json(video)
@@ -107,7 +151,6 @@ export async function getVideoById(req,res){
     }catch(err){
         res.status(500).json({message : err.message})
     }
-
 }
 
 

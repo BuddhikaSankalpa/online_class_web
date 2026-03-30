@@ -5,7 +5,7 @@ import Course from "../models/course.js"
 export async function createCourse(req,res){
 
     // Only admin users can create courses
-    if(req.user != null && req.user.isAsdmin){
+    if(req.user != null && req.user.isAdmin){
 
         try{
 

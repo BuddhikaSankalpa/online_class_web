@@ -1,31 +1,32 @@
-import jwt from "jsonwebtoken"
-export default function authenticate(req, res, next) {
+    import jwt from "jsonwebtoken"
+    
+    export default function authenticate(req, res, next) {
 
-        const header = req.header("Authorization")
+            const header = req.header("Authorization")
 
-        if(header == null){
+            if(header == null){
 
-            next()
+                next()
 
-        }else{
+            }else{
 
-            const token = header.replace("Bearer ", "")
+                const token = header.replace("Bearer ", "")
 
-            jwt.verify( token , process.env.JWT_SECRET_KEY, 
-                (err , decoded)=>{
+                jwt.verify( token , process.env.JWT_SECRET_KEY, 
+                    (err , decoded)=>{
 
-                    if(decoded == null){
-                        res.status(401).json({message : "Invalid token please login again"})
-                    }else{
+                        if(decoded == null){
+                            res.status(401).json({message : "Invalid token please login again"})
+                        }else{
 
-                        req.user = decoded
-                        next()
-                        
+                            req.user = decoded
+                            next()
+                            
+                        }
+
                     }
+                )
 
-                }
-            )
+            }
 
         }
-
-    }
