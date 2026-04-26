@@ -156,7 +156,7 @@ export async function getVideoById(req,res){
 
 
 
-// UPDATE VIDEO
+// UPDATE COURSE VIDEO
 export async function updateCourseVideo(req,res){
 
     if(req.user != null && req.user.isAdmin){
@@ -194,7 +194,7 @@ export async function updateCourseVideo(req,res){
 
 
 
-// DELETE VIDEO
+// DELETE COURSE VIDEO
 export async function deleteCourseVideo(req,res){
 
     if(req.user != null && req.user.isAdmin){

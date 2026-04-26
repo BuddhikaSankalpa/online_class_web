@@ -176,3 +176,28 @@ export async function deleteCourse(req,res){
     }
 
 }
+
+
+//SEARCH COURSES
+export async function searchCourse(req, res) {
+    const query = decodeURIComponent(req.params.query);
+    try {
+        const courses = await Course.find({
+            $and: [
+                {
+                    $or: [
+                        { title: { $regex: query, $options: "i" } },
+                        { description: { $regex: query, $options: "i" } }
+                    ]
+                },
+                { isAvailable: true }
+            ]
+        });
+        return res.json(courses);
+    } catch (error) {
+        res.status(500).json({
+            message: "Error searching courses",
+            error: error.message,
+        });
+    }
+}
